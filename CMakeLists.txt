@@ -4,36 +4,68 @@ project(qnanopainter
   VERSION 0.0.1
   )
 
-set(this_target QNanoPainter)
+set(EXTRA_MODULES_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH ${EXTRA_MODULES_DIR})
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
+
+include(EnsureBuildType)
+include(CompilerConfig)
+include(OutputDirConfig)
+include(QtMacFix)
+
+#=============================================================================
+# Various build options
+#=============================================================================
+
+option(QNANO_DEBUG "Enable this to get drawing debug information" OFF)
+if(${QNANO_DEBUG})
+  add_compile_definitions(QNANO_DEBUG)
+endif()
+
+option(QNANO_QT_GL_INCLUDE "Enable this to let Qt include OpenGL headers" ON)
+if(${QNANO_QT_GL_INCLUDE})
+  add_compile_definitions(QNANO_QT_GL_INCLUDE)
+endif()
+
+option(QNANO_ENABLE_GLES3 "This will enable GLES3 (disable to force GLES2)" ON)
+if(${QNANO_ENABLE_GLES3})
+  add_compile_definitions(QNANO_ENABLE_GLES3)
+endif()
+
+option(QNANO_ENABLE_TOUCH_SIGNALS
+  "Enable signalling touch events: useful when using view/widget classes directly" OFF)
+if(${QNANO_ENABLE_TOUCH_SIGNALS})
+  add_compile_definitions(QNANO_ENABLE_TOUCH_SIGNALS)
+endif()
+
+option(QNANO_ENABLE_PAINT_SIGNALS
+  "Enable signalling paint events: useful when using view/widget classes directly" OFF)
+if(${QNANO_ENABLE_PAINT_SIGNALS})
+  add_compile_definitions(QNANO_ENABLE_PAINT_SIGNALS)
+endif()
+
+option(QNANO_USE_RENDERNODE
+  "Enable this to use QRenderNode (Qt>=5.8.0) instead of QQuickFramebufferObject" OFF)
+if(${QNANO_USE_RENDERNODE})
+  add_compile_definitions(QNANO_USE_RENDERNODE)
+endif()
 
 option(QNANO_QUICK "Build QNanoPainter for QtQuick" OFF)
-
 option(QNANO_WIDGETS "Build QNanoPainter for QtWidgets" OFF)
 
-find_package(Qt5 COMPONENTS Core Gui REQUIRED)
-
-# Enable this to get drawing debug information
-#add_definitions(-DQNANO_DEBUG)
-
-# Enable this to let Qt include OpenGL headers
-add_definitions(-DQNANO_QT_GL_INCLUDE)
-
-# This will enable GLES3 (disable to force GLES2)
-add_definitions(-DQNANO_ENABLE_GLES3)
-
-# This will enable signalling touch events
-# Can be useful when using view/widget classes directly
-#add_definitions(-DQNANO_ENABLE_TOUCH_SIGNALS)
-
-# This will enable signalling paint events
-# Can be useful when using view/widget classes directly
-#add_definitions(-DQNANO_ENABLE_PAINT_SIGNALS)
-
 # When building for embedded devices you can define manually which backends are supported
-set(QNANO_BUILD_GLES_BACKENDS OFF)
-set(QNANO_BUILD_GL_BACKENDS ON)
+option(QNANO_BUILD_GL_BACKENDS "Build with GL backend" ON)
+option(QNANO_BUILD_GLES_BACKENDS "Build with GLES backend" OFF)
+
+if(NOT ${QNANO_BUILD_GLES_BACKENDS} AND NOT ${QNANO_BUILD_GL_BACKENDS})
+  message(WARNING "No backend selected. Please enable at least one of QNANO_BUILD_GL_BACKENDS or QNANO_BUILD_GLES_BACKENDS.")
+endif()
 
 # \TODO: autodetect backends
+
+set(this_target QNanoPainter)
+
+find_package(Qt5 COMPONENTS Core Gui REQUIRED)
 
 set(${this_target}_sources
   libqnanopainter
@@ -71,7 +103,7 @@ set(${this_target}_headers
 qt5_add_resources(${this_target}_resources
   libqnanopainter/libqnanopainterdata.qrc)
 
-if(QNANO_BUILD_GLES_BACKENDS)
+if(${QNANO_BUILD_GLES_BACKENDS})
   message(STATUS "QNanoPainter: Including OpenGL ES backends")
   add_definitions(-DQNANO_BUILD_GLES_BACKENDS)
 
@@ -87,7 +119,7 @@ if(QNANO_BUILD_GLES_BACKENDS)
     )
 endif()
 
-if(QNANO_BUILD_GL_BACKENDS)
+if(${QNANO_BUILD_GL_BACKENDS})
   message(STATUS "QNanoPainter: Including OpenGL backends")
 
   find_package(OpenGL REQUIRED)
@@ -111,7 +143,7 @@ if(QNANO_BUILD_GL_BACKENDS)
     )
 endif()
 
-if (QNANO_QUICK)
+if (${QNANO_QUICK})
   message(STATUS "QNanoPainter: Including QtQuick components")
   find_package(Qt5 COMPONENTS Quick REQUIRED)
 
@@ -131,7 +163,7 @@ if (QNANO_QUICK)
     )
 endif()
 
-if (QNANO_WIDGETS)
+if (${QNANO_WIDGETS})
   message(STATUS "QNanoPainter: Including QtWidget components")
   find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
