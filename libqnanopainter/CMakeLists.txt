@@ -1,5 +1,7 @@
 set(this_target qnanopainter)
 
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
+
 set(${this_target}_sources
   qnanopainter.cpp
   qnanocolor.cpp
@@ -23,28 +25,6 @@ set(${this_target}_headers
   qnanoboxgradient.h
   qnanowindow.h
   )
-
-set(${this_target}_resources
-  libqnanopainterdata.qrc
-  )
-
-if(${QNANO_BUILD_GLES_BACKENDS})
-  message(STATUS "QNanoPainter: Including OpenGL ES backends")
-  add_definitions(-DQNANO_BUILD_GLES_BACKENDS)
-endif()
-
-if(${QNANO_BUILD_GL_BACKENDS})
-  message(STATUS "QNanoPainter: Including OpenGL backends")
-  add_definitions(-DQNANO_BUILD_GL_BACKENDS)
-  find_package(OpenGL REQUIRED)
-  set(${this_target}_libs
-    ${${this_target}_libs}
-    PUBLIC OpenGL::GL
-    )
-endif()
-
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/nanovg)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/private)
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick)
 if(Qt${QT_VERSION_MAJOR}Quick_FOUND)
@@ -83,6 +63,31 @@ if(Qt${QT_VERSION_MAJOR}Widgets_FOUND)
     PUBLIC Qt${QT_VERSION_MAJOR}::Widgets
     )
 endif()
+
+if(${QNANO_BUILD_GLES_BACKENDS})
+  message(STATUS "QNanoPainter: Including OpenGL ES backends")
+  add_definitions(-DQNANO_BUILD_GLES_BACKENDS)
+endif()
+
+if(${QNANO_BUILD_GL_BACKENDS})
+  message(STATUS "QNanoPainter: Including OpenGL backends")
+  add_definitions(-DQNANO_BUILD_GL_BACKENDS)
+  find_package(OpenGL REQUIRED)
+  set(${this_target}_libs
+    ${${this_target}_libs}
+    PUBLIC OpenGL::GL
+    )
+endif()
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/private)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/nanovg)
+
+# Auto generate moc files
+set(CMAKE_AUTORCC ON)
+
+set(${this_target}_resources
+  libqnanopainterdata.qrc
+  )
 
 add_library(
   ${this_target} STATIC

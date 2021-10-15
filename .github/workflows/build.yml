@@ -12,13 +12,12 @@ jobs:
             build-essential \
             cmake \
             qtbase5-dev \
-            qtbase5-dev-tools \
             qtdeclarative5-dev
       - name: Run Cmake
         run: |
           mkdir build
           cd build
-          cmake ..
+          cmake -DQNANO_BUILD_GL_BACKENDS ..
       - name: Build library
         run: |
           cd build

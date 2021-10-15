@@ -14,7 +14,7 @@ include(OutputDirConfig)
 include(QtMacFix)
 
 #=============================================================================
-# Various build options
+# Configurable build options
 #=============================================================================
 
 option(QNANO_DEBUG "Enable this to get drawing debug information" OFF)
@@ -50,23 +50,20 @@ if(${QNANO_USE_RENDERNODE})
   add_compile_definitions(QNANO_USE_RENDERNODE)
 endif()
 
-# When building for embedded devices you can define manually which backends are supported
-option(QNANO_BUILD_GL_BACKENDS "Build with GL backend" ON)
-option(QNANO_BUILD_GLES_BACKENDS "Build with GLES backend" OFF)
-
-if(NOT ${QNANO_BUILD_GLES_BACKENDS} AND NOT ${QNANO_BUILD_GL_BACKENDS})
-  message(FATAL_ERROR "No backend selected. Please enable at least one of QNANO_BUILD_GL_BACKENDS or QNANO_BUILD_GLES_BACKENDS.")
-endif()
-
-# \TODO: autodetect backends
-
 set(QT_VERSION_MAJOR 5)
 find_package(QT NAMES Qt5 Qt6 Qt4 COMPONENTS Core QUIET)
 message(STATUS "Detected QT major version = ${QT_VERSION_MAJOR}")
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
 
-# Auto generate moc files
-set(CMAKE_AUTORCC ON)
+# When building for embedded devices you can define manually which backends are supported
+option(QNANO_BUILD_GL_BACKENDS "Build with GL backend" OFF)
+option(QNANO_BUILD_GLES_BACKENDS "Build with GLES backend" OFF)
+
+# \TODO: win32 link GL libs
+# \TODO: Qt6 link GL libs
+# \TODO: autoselect backend
+
+if(NOT ${QNANO_BUILD_GLES_BACKENDS} AND NOT ${QNANO_BUILD_GL_BACKENDS})
+  message(FATAL_ERROR "No backend selected (QNANO_BUILD_GL_BACKENDS, QNANO_BUILD_GLES_BACKENDS).")
+endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libqnanopainter)
-
