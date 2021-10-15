@@ -13,7 +13,7 @@ jobs:
             cmake \
             qtbase5-dev \
             qtbase5-dev-tools \
-            qtquickcontrols2-5-dev
+            qtdeclarative5-dev
       - name: Run Cmake
         run: |
           mkdir build
