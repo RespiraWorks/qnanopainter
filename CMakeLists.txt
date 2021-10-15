@@ -50,22 +50,22 @@ if(${QNANO_USE_RENDERNODE})
   add_compile_definitions(QNANO_USE_RENDERNODE)
 endif()
 
-option(QNANO_QUICK "Build QNanoPainter for QtQuick" OFF)
-option(QNANO_WIDGETS "Build QNanoPainter for QtWidgets" OFF)
-
 # When building for embedded devices you can define manually which backends are supported
 option(QNANO_BUILD_GL_BACKENDS "Build with GL backend" ON)
 option(QNANO_BUILD_GLES_BACKENDS "Build with GLES backend" OFF)
 
 if(NOT ${QNANO_BUILD_GLES_BACKENDS} AND NOT ${QNANO_BUILD_GL_BACKENDS})
-  message(WARNING "No backend selected. Please enable at least one of QNANO_BUILD_GL_BACKENDS or QNANO_BUILD_GLES_BACKENDS.")
+  message(FATAL_ERROR "No backend selected. Please enable at least one of QNANO_BUILD_GL_BACKENDS or QNANO_BUILD_GLES_BACKENDS.")
 endif()
 
 # \TODO: autodetect backends
 
 set(this_target QNanoPainter)
 
-find_package(Qt5 COMPONENTS Core Gui REQUIRED)
+set(QT_VERSION_MAJOR 5)
+find_package(QT NAMES Qt5 Qt6 Qt4 COMPONENTS Core QUIET)
+message(STATUS "Detected QT major version = ${QT_VERSION_MAJOR}")
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
 
 set(${this_target}_sources
   libqnanopainter
@@ -100,7 +100,7 @@ set(${this_target}_headers
   libqnanopainter/nanovg/nanovg.h
   )
 
-qt5_add_resources(${this_target}_resources
+qt_add_resources(${this_target}_resources
   libqnanopainter/libqnanopainterdata.qrc)
 
 if(${QNANO_BUILD_GLES_BACKENDS})
@@ -143,9 +143,9 @@ if(${QNANO_BUILD_GL_BACKENDS})
     )
 endif()
 
-if (${QNANO_QUICK})
-  message(STATUS "QNanoPainter: Including QtQuick components")
-  find_package(Qt5 COMPONENTS Quick REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick)
+if(Qt${QT_VERSION_MAJOR}Quick_FOUND)
+  message(STATUS "QNanoPainter: Found Qt${QT_VERSION_MAJOR}Quick, will build QtQuick components.")
 
   set(${this_target}_sources
     ${${this_target}_sources}
@@ -159,13 +159,13 @@ if (${QNANO_QUICK})
     )
   set(${this_target}_libs
     ${${this_target}_libs}
-    PUBLIC Qt5::Quick
+    PUBLIC Qt${QT_VERSION_MAJOR}::Quick
     )
 endif()
 
-if (${QNANO_WIDGETS})
-  message(STATUS "QNanoPainter: Including QtWidget components")
-  find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets)
+if(Qt${QT_VERSION_MAJOR}Widgets_FOUND)
+  message(STATUS "QNanoPainter: Found Qt${QT_VERSION_MAJOR}Widgets, will build QtWidget components.")
 
   set(${this_target}_sources
     ${${this_target}_sources}
@@ -177,7 +177,7 @@ if (${QNANO_WIDGETS})
     )
   set(${this_target}_libs
     ${${this_target}_libs}
-    PUBLIC Qt5::Widgets
+    PUBLIC Qt${QT_VERSION_MAJOR}::Widgets
     )
 endif()
 
@@ -197,7 +197,7 @@ target_include_directories(
 
 target_link_libraries(
   ${this_target}
-  PUBLIC Qt5::Core
-  PUBLIC Qt5::Gui
+  PUBLIC Qt${QT_VERSION_MAJOR}::Core
+  PUBLIC Qt${QT_VERSION_MAJOR}::Gui
   ${${this_target}_libs}
 )
