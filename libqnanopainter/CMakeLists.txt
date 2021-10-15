@@ -1,4 +1,4 @@
-set(this_target qnanopainter)
+set(this_target ${PROJECT_NAME})
 
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
 
@@ -79,6 +79,9 @@ if(${QNANO_BUILD_GL_BACKENDS})
     )
 endif()
 
+install(FILES ${${this_target}_headers}
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${this_target})
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/private)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/nanovg)
 
@@ -99,8 +102,10 @@ add_library(
 target_include_directories(
   ${this_target}
   PRIVATE private
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-  INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}> $<INSTALL_INTERFACE:include>
+#  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+#  PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}> $<INSTALL_INTERFACE:include>
+#  INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_link_libraries(
@@ -109,3 +114,18 @@ target_link_libraries(
   PUBLIC Qt${QT_VERSION_MAJOR}::Gui
   ${${this_target}_libs}
 )
+
+set_target_properties(${this_target}
+  PROPERTIES
+  VERSION ${PROJECT_VERSION}
+  EXPORT_NAME "${this_target}"
+  OUTPUT_NAME "${this_target}"
+  )
+
+install(TARGETS ${this_target}
+  EXPORT qnanopainter_targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  COMPONENT runtime
+  )

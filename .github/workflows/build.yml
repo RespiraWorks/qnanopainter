@@ -17,8 +17,12 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DQNANO_BUILD_GL_BACKENDS ..
+          cmake -DQNANO_BUILD_GL_BACKENDS=ON ..
       - name: Build library
         run: |
           cd build
           make -j
+      - name: Install library
+        run: |
+          cd build
+          sudo make install
