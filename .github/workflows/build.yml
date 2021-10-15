@@ -18,7 +18,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DQNANO_WIDGETS=1 -DQNANO_QUICK=1 ..
+          cmake ..
       - name: Build library
         run: |
           cd build

@@ -67,6 +67,9 @@ find_package(QT NAMES Qt5 Qt6 Qt4 COMPONENTS Core QUIET)
 message(STATUS "Detected QT major version = ${QT_VERSION_MAJOR}")
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui REQUIRED)
 
+# Auto generate moc files
+set(CMAKE_AUTORCC ON)
+
 set(${this_target}_sources
   libqnanopainter
   libqnanopainter/qnanopainter.cpp
@@ -100,8 +103,9 @@ set(${this_target}_headers
   libqnanopainter/nanovg/nanovg.h
   )
 
-qt_add_resources(${this_target}_resources
-  libqnanopainter/libqnanopainterdata.qrc)
+set(${this_target}_resources
+  libqnanopainter/libqnanopainterdata.qrc
+  )
 
 if(${QNANO_BUILD_GLES_BACKENDS})
   message(STATUS "QNanoPainter: Including OpenGL ES backends")
