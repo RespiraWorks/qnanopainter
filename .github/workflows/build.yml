@@ -1,0 +1,28 @@
+name: Build
+on: [push]
+jobs:
+  build-library:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            cmake \
+            qtbase5-dev \
+            qtdeclarative5-dev
+      - name: Run Cmake
+        run: |
+          mkdir build
+          cd build
+          cmake -DQNANO_BUILD_GL_BACKENDS=ON ..
+      - name: Build library
+        run: |
+          cd build
+          make -j
+      - name: Install library
+        run: |
+          cd build
+          sudo make install

@@ -1,3 +1,7 @@
+# Build
+
+build
+
 # Documentation
 
 doc/html
@@ -33,3 +37,8 @@ Makefile*
 # QtCreator
 
 *.autosave
+
+# CLion
+.idea
+cmake-build-*
+
